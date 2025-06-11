@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Publicador de Scripts Roblox</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #fff; padding: 20px; }
+    h1, h2 { color: #00ffd5; }
+    textarea, input {
+      width: 100%; padding: 10px; margin-top: 10px; margin-bottom: 10px;
+      background: #000; color: #0f0; border: 1px solid #444;
+      font-family: monospace;
+    }
+    button {
+      padding: 10px 20px; background: #00ffd5; border: none;
+      cursor: pointer; font-weight: bold;
+    }
+    .script {
+      background: #1e1e1e; margin-top: 20px; padding: 10px;
+      border-radius: 8px;
+    }
+    pre {
+      background: #000; padding: 10px; overflow-x: auto;
+      white-space: pre-wrap; border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📜 Publicador de Scripts para Roblox</h1>
+
+  <form id="form">
+    <input type="text" id="titulo" placeholder="Título do script" required />
+    <textarea id="codigo" placeholder="Cole seu script aqui..." required></textarea>
+    <button type="submit">📤 Publicar Script</button>
+  </form>
+
+  <h2>📚 Scripts Publicados:</h2>
+  <div id="scripts"></div>
+
+  <script>
+    async function carregarScripts() {
+      const res = await fetch('/api/scripts');
+      const scripts = await res.json();
+      const container = document.getElementById('scripts');
+      container.innerHTML = '';
+      scripts.reverse().forEach(script => {
+        const div = document.createElement('div');
+        div.className = 'script';
+        div.innerHTML = \`<h3>\${script.titulo}</h3><pre>\${script.codigo}</pre>\`;
+        container.appendChild(div);
+      });
+    }
+
+    document.getElementById('form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const titulo = document.getElementById('titulo').value;
+      const codigo = document.getElementById('codigo').value;
+
+      await fetch('/api/publicar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo, codigo })
+      });
+
+      document.getElementById('form').reset();
+      carregarScripts();
+    });
+
+    carregarScripts();
+  </script>
+</body>
+</html>
